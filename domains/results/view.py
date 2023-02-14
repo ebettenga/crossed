@@ -1,7 +1,8 @@
-from flask import request
+from flask import request, session
 from marshmallow import ValidationError
 
 from config import app
+from domains.authentication.service import login_required
 from domains.pagination.model import PaginationSchema
 from domains.results.model import ResultSchema
 from domains.results.service import ResultsService
@@ -10,6 +11,7 @@ results_service = ResultsService()
 
 
 @app.route("/api/v1/results")
+@login_required
 def get_results():
     page = int(request.args.get("page", 1))
     limit = int(request.args.get("limit", 100))

@@ -1,18 +1,29 @@
 import os
+from config import db
 from urllib.parse import urlencode, quote_plus
 
 from flask import session, redirect, url_for
 
 from config import app, oauth
+from domains.user.model import User, UserQueryClient, UserSchema
+from domains.user.service import UserService
 
+
+user_service = UserService()
 
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
-    session["user"] = token
-    # TODO: save user details to db
-    # TODO: redirect("back to app route here")
-    return session["user"]
+    query: UserQueryClient = User.query
+    user = query.get_by_email(token["userinfo"]["email"]).first()
+
+    if not user:
+        user_info: dict = token["userinfo"]
+        user_service.create_user(user_info.get("given_name"), user_info.get("family_name"), user_info.get("email"), user_info.get("picture"))
+        
+    user_schema = UserSchema()
+    session["user"] = user_schema.dump(user)
+    return user_schema.dump(user)
 
 
 @app.route("/login")
