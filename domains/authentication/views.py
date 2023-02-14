@@ -19,7 +19,7 @@ def callback():
 
     if not user:
         user_info: dict = token["userinfo"]
-        user_service.create_user(user_info.get("given_name"), user_info.get("family_name"), user_info.get("email"), user_info.get("picture"))
+        user = user_service.create_user(user_info.get("given_name"), user_info.get("family_name"), user_info.get("email"), user_info.get("picture"))
         
     user_schema = UserSchema()
     session["user"] = user_schema.dump(user)
