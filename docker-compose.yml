@@ -1,0 +1,39 @@
+services:
+  postgres:
+    container_name: crossed_db
+    image: postgres:10.19
+    networks:
+      - crossed
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: crossed_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/crossed_data
+#        point this towards the file you would like to load up
+      - ./build/db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql
+      - ./etc/psqlrc:/var/lib/postgresql/.psqlrc
+    restart: always
+    user: postgres
+  server:
+    container_name: crossed_server
+    restart: always
+    volumes:
+      - ./:/app
+    environment:
+      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:secret@crossed_db:5432/crossed_db"
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - crossed
+    depends_on:
+      - postgres
+networks:
+  crossed:
+volumes:
+  postgres-data:
