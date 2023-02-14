@@ -5,6 +5,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from authlib.integrations.flask_client import OAuth
 
 
@@ -21,9 +22,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", "po
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app,resources={r"/*":{"origins":"*"}})
 
 db = SQLAlchemy(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 oauth = OAuth(app)
 
 oauth.register(
