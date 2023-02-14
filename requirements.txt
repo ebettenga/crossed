@@ -22,3 +22,6 @@ SQLAlchemy==2.0.3
 typing_extensions==4.4.0
 Werkzeug==2.2.2
 zipp==3.13.0
+python-dotenv>=0.19.2
+authlib>=1.0
+requests>=2.27.1
