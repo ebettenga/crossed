@@ -42,6 +42,8 @@ Service layer is to perform actions on data and offload side effects
 
 ## Getting Started
 
+an **.env** file is needed to pass along authorization config values. please email ebettenga@gmail.com to ask about contributing to this project
+
 ### Easy Mode
 
     1. docker compose up 

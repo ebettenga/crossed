@@ -11,6 +11,7 @@ def callback():
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
     # TODO: save user details to db
+    # TODO: redirect("back to app route here")
     return session["user"]
 
 
