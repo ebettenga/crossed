@@ -52,7 +52,6 @@ Folder structure is a domain design, following this pattern
         view
         service
 
-
 Model folder containing the Mapping schemas and the sql model itself
 
 View is to organize resource routes and create response objects
