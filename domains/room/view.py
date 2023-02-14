@@ -6,7 +6,7 @@ from domains.user.model import *
 
 
 from config import socketio
-from flask_socketio import emit
+from flask_socketio import emit, join_room, send
 
 @socketio.on("connect")
 def connected():
@@ -15,11 +15,31 @@ def connected():
     print("client has connected")
     emit("connect",{"data":f"id: {request.sid} is connected"})
 
-@socketio.on('data')
+
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    print(room)
+    send(username + ' has entered the room.', to=room)
+
+@socketio.on('emit')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    print(room)
+    send("Everybody do the flop", to=room)
+
+@socketio.on('game')
 def handle_message(data):
     """event listener when client types a message"""
+    room = data['room']
+    join_room(room)
+    print(room)
     print("data from the front end: ",str(data))
-    emit("data",{'data':data,'id':request.sid},broadcast=True)
+    send({'data':data,'id':request.sid},to=room)
 
 @socketio.on("disconnect")
 def disconnected():
