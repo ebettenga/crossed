@@ -5,7 +5,6 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
 from authlib.integrations.flask_client import OAuth
 
 
@@ -21,40 +20,45 @@ async_mode = None
 if async_mode is None:
     try:
         import eventlet
-        async_mode = 'eventlet'
+
+        async_mode = "eventlet"
     except ImportError:
         pass
 
     if async_mode is None:
         try:
             from gevent import monkey
-            async_mode = 'gevent'
+
+            async_mode = "gevent"
         except ImportError:
             pass
 
     if async_mode is None:
-        async_mode = 'threading'
+        async_mode = "threading"
 
-    print('async_mode is ' + async_mode)
+    print("async_mode is " + async_mode)
 
 # monkey patching is necessary because this application uses a background
 # thread
-if async_mode == 'eventlet':
+if async_mode == "eventlet":
     import eventlet
+
     eventlet.monkey_patch()
-elif async_mode == 'gevent':
+elif async_mode == "gevent":
     from gevent import monkey
+
     monkey.patch_all()
 
 
 app = Flask(__name__)
 app.secret_key = os.getenv("APP_SECRET_KEY")
 ## container
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI", "postgresql://postgres:secret@localhost:5432/crossed_db")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "SQLALCHEMY_DATABASE_URI", "postgresql://postgres:secret@localhost:5432/crossed_db"
+)
 
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-CORS(app,resources={r"/*":{"origins":"*"}})
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode=async_mode)
@@ -72,12 +76,11 @@ oauth.register(
 migrate = Migrate(app, db, compare_type=True)
 
 
-
 class Config(object):
     DEBUG = True
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = 'this-really-needs-to-be-changed'
+    SECRET_KEY = "this-really-needs-to-be-changed"
 
 
 class ProductionConfig(Config):

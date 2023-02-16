@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from marshmallow import Schema, fields
-from sqlalchemy import ARRAY, DateTime, Integer, String, Boolean
+from sqlalchemy import ARRAY, Date, Integer, String, Boolean
 
 from config import db
 
@@ -14,7 +14,7 @@ class CrosswordQueryClient(Query):
 
 
 class Crossword(db.Model):
-    __tablename__ = "results"
+    __tablename__ = "crosswords"
     query_client = CrosswordQueryClient
 
     id = db.Column(Integer, primary_key=True)
@@ -22,17 +22,18 @@ class Crossword(db.Model):
     answers = db.Column(JSON, nullable=False)
     author = db.Column(String)
     circles = db.Column(ARRAY(Integer))
-    date = db.Column(DateTime)
+    date = db.Column(Date)
     dow = db.Column(String)
     grid = db.Column(ARRAY(String))
     gridnums = db.Column(ARRAY(Integer))
     shadecircles = db.Column(Boolean)
     col_size = db.Column(Integer)
     row_size = db.Column(Integer)
+    jnote = db.Column(String)
+    notepad = db.Column(String)
 
     def __init__(
         self,
-        id,
         clues,
         answers,
         author,
@@ -44,8 +45,36 @@ class Crossword(db.Model):
         shadecircles,
         col_size,
         row_size,
+        jnotes,
+        notepad,
+        *args,
+        **kwargs,
     ):
-        pass
+        self.clues = clues
+        self.answers = answers
+        self.author = author
+        self.circles = circles
+        self.date = date
+        self.dow = dow
+        self.grid = grid
+        self.gridnums = gridnums
+        self.shadecircles = shadecircles
+        self.col_size = col_size
+        self.row_size = row_size
+        self.jnote = jnotes
+        self.notepad = notepad
+
+        if kwargs:
+            for key, item in kwargs.items():
+                if item and key not in [
+                    "size",
+                    "title",
+                    "editor",
+                    "copyright",
+                    "publisher",
+                    "hastitle",
+                ]:
+                    print(f"{key} {item}")
 
     def __repr__(self):
         return "<id {}>".format(self.id)
