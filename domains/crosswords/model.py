@@ -1,21 +1,13 @@
-from datetime import datetime
-
-from marshmallow import Schema, fields
+from marshmallow import Schema, ValidationError, fields
 from sqlalchemy import ARRAY, Date, Integer, String, Boolean
 
 from config import db
 
 from sqlalchemy.dialects.postgresql import JSON
-from flask_sqlalchemy.query import Query
-
-
-class CrosswordQueryClient(Query):
-    pass
 
 
 class Crossword(db.Model):
     __tablename__ = "crosswords"
-    query_client = CrosswordQueryClient
 
     id = db.Column(Integer, primary_key=True)
     clues = db.Column(JSON, nullable=False)
@@ -80,9 +72,39 @@ class Crossword(db.Model):
         return "<id {}>".format(self.id)
 
 
-class ResultSchema(Schema):
+class CrosswordSchema(Schema):
     id = fields.Int(dump_only=True)
-    created_at = fields.DateTime(dump_only=True)
-    url = fields.Url(required=True)
-    result_all = fields.Dict()
-    result_no_stop_words = fields.Dict()
+    clues = fields.Dict()
+    answers = fields.Dict()
+    author = fields.String()
+    circles = fields.List(fields.Integer())
+    date = fields.Date()
+    dow = fields.String()
+    grid = fields.List(fields.String())
+    gridnums = fields.List(fields.Integer())
+    shadecircles = fields.Boolean()
+    col_size = fields.Integer()
+    row_size = fields.Integer()
+    jnote = fields.String()
+    notepad = fields.String()
+
+
+def is_dow(dow_string):
+    if dow_string not in [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]:
+        raise ValidationError("dow must be a capitilized weekday")
+
+
+class CrosswordQuerySchema(Schema):
+    page = fields.Integer()
+    limit = fields.Integer()
+    dow = fields.String(validate=is_dow)
+    col_size = fields.Integer()
+    row_size = fields.Integer()

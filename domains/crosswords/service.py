@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 from config import db
+from flask_sqlalchemy.query import Query
 from domains.crosswords.model import Crossword
 
 
@@ -9,8 +10,20 @@ class CrossWordService:
     def __init__(self):
         pass
 
-    def get_crosswords(self, page, limit):
-        pass
+    def get_crosswords(self, page, limit, dow, col_size, row_size):
+        crosswords: Query = Crossword.query
+
+        if dow:
+            crosswords = crosswords.filter_by(dow=dow)
+
+        if col_size:
+            crosswords = crosswords.filter_by(col_size=col_size)
+
+        if row_size:
+            crosswords = crosswords.filter_by(row_size=row_size)
+
+        crossword_pagination = crosswords.paginate(page=page, per_page=limit)
+        return crossword_pagination
 
     def load_crosswords(self):
         for root, dirs, files in os.walk("./crosswords"):

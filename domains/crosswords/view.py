@@ -1,8 +1,9 @@
-from flask import request, session
+from flask import request
 from marshmallow import ValidationError
 
 from config import app
 from domains.authentication.service import login_required
+from domains.crosswords.model import CrosswordQuerySchema, CrosswordSchema
 from domains.crosswords.service import CrossWordService
 from domains.pagination.model import PaginationSchema
 
@@ -12,16 +13,25 @@ crossword_service = CrossWordService()
 @app.route("/api/v1/crosswords")
 @login_required
 def get_crosswords():
-    pass
-    # page = int(request.args.get("page", 1))
-    # limit = int(request.args.get("limit", 100))
-    # results = crossword_service.get_crosswords(page, limit)
-    # result_schema = ResultSchema(many=True)
-    # pagination_schema = PaginationSchema()
-    # return {
-    #     "results": result_schema.dump(results.items),
-    #     "pagination": pagination_schema.dump(results),
-    # }
+    try:
+        query_schema = CrosswordQuerySchema()
+        data = query_schema.load(request.args)
+    except ValidationError as err:
+        return err.messages, 422
+
+    page = int(data.get("page", 1))
+    limit = int(data.get("limit", 100))
+    dow = data.get("dow")
+    col_size = data.get("col_size")
+    row_size = data.get("row_size")
+
+    results = crossword_service.get_crosswords(page, limit, dow, col_size, row_size)
+    schema = CrosswordSchema(many=True)
+    pagination_schema = PaginationSchema()
+    return {
+        "results": schema.dump(results.items),
+        "pagination": pagination_schema.dump(results),
+    }
 
 
 @app.route("/api/v1/load_crosswords", methods=["GET"])

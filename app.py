@@ -1,5 +1,4 @@
 from config import socketio, app
-from domains.results.view import *
 from domains.authentication.views import *
 from domains.room.view import *
 from domains.crosswords.view import *
