@@ -2,9 +2,12 @@
 
 an **.env** file is needed to pass along authorization config values. please email ebettenga@gmail.com to ask about contributing to this project
 
+
+run this command in the terminal to get formatting on commits ```pre-commit install```
+
 ### Easy Mode
 
-    1. docker compose up 
+    1. docker compose up
     2. docker compose exec -it crossed_server /bin/bash
     3. flask db upgrade
 
@@ -57,5 +60,3 @@ Model folder containing the Mapping schemas and the sql model itself
 View is to organize resource routes and create response objects
 
 Service layer is to perform actions on data and offload side effects
-
-
