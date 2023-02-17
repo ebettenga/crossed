@@ -4,7 +4,6 @@ from marshmallow import ValidationError
 from config import socketio
 from domains.authentication.service import login_required
 from domains.authentication.views import *
-from domains.crosswords.service import CrossWordService
 from domains.room.model import CreateRoomSchema, RoomSchema
 from domains.room.service import RoomService
 
