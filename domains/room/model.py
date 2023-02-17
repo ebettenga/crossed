@@ -1,6 +1,6 @@
 import datetime
 from marshmallow import Schema, fields
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy import ARRAY, Column, DateTime, ForeignKey, Identity, Integer, String
 from sqlalchemy.orm import relationship
 from config import db
 
@@ -23,11 +23,12 @@ class Room(db.Model):
         nullable=False,
     )
     created_at = Column(DateTime, default=lambda: datetime.datetime.utcnow())
+    found_letters = Column(ARRAY(String))
     player_1_score = Column(Integer, default=0)
     player_2_score = Column(Integer, default=0)
+    join_id = Column(Integer, Identity())
 
     crossword = relationship("Crossword")
-
     player_1 = relationship("User", foreign_keys=[player_1_id])
     player_2 = relationship("User", foreign_keys=[player_2_id])
 
@@ -51,3 +52,7 @@ class RoomSchema(Schema):
     created_at = fields.DateTime()
     player_1_score = fields.Integer()
     player_2_score = fields.Integer()
+    join_link = fields.Method("get_join_link")
+
+    def get_join_link(self, room):
+        return f"http://localhost:5000/join_room/{room.join_id}"

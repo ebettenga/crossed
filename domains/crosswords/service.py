@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import re
 from config import db
 from flask_sqlalchemy.query import Query
 from domains.crosswords.model import Crossword
@@ -52,3 +53,9 @@ class CrossWordService:
                         db.session.rollback()
                         print(f"{root}/{file} could not be parsed using json")
                         print(e)
+
+    def create_found_letters_template(self, crossword_id):
+        crossword: Crossword = Crossword.query.get(crossword_id)
+        new_grid = []
+
+        return [re.sub("[A-Za-z]", "*", v) for v in crossword.grid]

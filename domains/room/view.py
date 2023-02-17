@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 from config import socketio
 from domains.authentication.service import login_required
 from domains.authentication.views import *
+from domains.crosswords.service import CrossWordService
 from domains.room.model import CreateRoomSchema, RoomSchema
 from domains.room.service import RoomService
 
@@ -17,7 +18,7 @@ from flask_socketio import emit, join_room, send
 room_service = RoomService()
 
 
-@app.route("/api/v1/room", methods=["POST"])
+@app.route("/api/v1/rooms", methods=["POST"])
 @login_required
 def create_room():
     user = session["user"]
@@ -33,6 +34,16 @@ def create_room():
 
     outbound_schema = RoomSchema()
     return outbound_schema.dump(room)
+
+
+@app.route("/join_room/<int:join_id>", methods=["POST"])
+@login_required
+def join_room(join_id):
+    user = session["user"]
+
+    room = room_service.join_room(user.get("id"), join_id)
+
+    return redirect(f"http://localhost:5173/join/{room.id}")
 
 
 class RoomNamespace(Namespace):
@@ -53,13 +64,23 @@ class RoomNamespace(Namespace):
         print(request.event["args"])
         print(e)
 
-    def on_game(self, data):
-        """event listener when client types a message"""
-        room = data["room"]
-        join_room(room)
-        print(room)
-        print("data from the front end: ", str(data))
-        send({"data": data, "id": request.sid}, to=room)
+    """
+        Steps for playing a game
+        1. user 1 picks a crossword
+        2. user 1 gets a join id, which they can pass to other users
+        3. user 1 joins a roomsocket
+        4. user 2 hits endpoint sent to them to join the room
+        5. user 2 gets redirected to the website, which grabs the room id from the path
+        6. user 2 joins the roomsocket
+        7. since two players have now joined the room, a message is emitted to the room telling the game to start
+        8. the game starts
+
+
+        Steps while playing
+        1. user 1 submits room_number, col, row, and letter guessed throught the socket
+        2. server checks that the letter hasn't been guessed before, and determines whether it's correct
+        3. server updates the players scores and emits the new scores, if the guess was correct, it also emits the found letters
+    """
 
     def on_join(data):
         username = data["username"]
@@ -67,6 +88,14 @@ class RoomNamespace(Namespace):
         join_room(room)
         print(room)
         send(username + " has entered the room.", to=room)
+
+    def on_game(self, data):
+        """event listener when client types a message"""
+        room = data["room"]
+        join_room(room)
+        print(room)
+        print("data from the front end: ", str(data))
+        send({"data": data, "id": request.sid}, to=room)
 
 
 socketio.on_namespace(RoomNamespace("/"))
