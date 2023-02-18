@@ -1,3 +1,4 @@
+import json
 from flask import request, session
 
 from marshmallow import ValidationError
@@ -11,7 +12,7 @@ from domains.user.model import *
 
 
 from config import socketio
-from flask_socketio import emit, join_room
+from flask_socketio import emit, join_room, send
 
 
 room_service = RoomService()
@@ -37,7 +38,7 @@ def create_room():
 
 @app.route("/join_room/<int:join_id>", methods=["POST"])
 @login_required
-def join_room(join_id):
+def join_user_to_room(join_id):
     user = session["user"]
 
     room = room_service.join_room(user.get("id"), join_id)
@@ -56,16 +57,25 @@ def connected():
 @socketio.on("join")
 def on_join(data):
     room = data["room"]
-    join_room(room)
-    emit("room_joined", "player has joined")
+    session["room"] = room
+    room = join_room(room)
+    print(room)
+    socketio.emit("room_joined", "player has joined", to=room)
 
 
 @socketio.on("message")
 def handle_message(data):
     print("got message", data)
     room = data["room"]
+    print("room number", room)
     """event listener when client types a message"""
-    emit("message", {"message": "Hello World"})
+    emit("message", {"message": "Hello World"}, to=session.get("room"))
+
+
+@socketio.on("game_state")
+def handle_message(data):
+    print(session)
+    emit("state", {"state": {"test_object": data}}, to=session.get("room"))
 
 
 @socketio.on("disconnect")
