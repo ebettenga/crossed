@@ -69,7 +69,7 @@ def handle_message(data):
     room = data["room"]
     print("room number", room)
     """event listener when client types a message"""
-    emit("message", {"message": "Hello World"}, to=session.get("room"))
+    emit("message", {"message": data["message"]}, to=session.get("room"))
 
 
 @socketio.on("game_state")
