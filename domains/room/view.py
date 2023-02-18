@@ -36,14 +36,14 @@ def create_room():
     return outbound_schema.dump(room)
 
 
-@app.route("/join_room/<int:join_id>", methods=["POST"])
+@app.route("/join_room/<int:join_id>", methods=["GET"])
 @login_required
 def join_user_to_room(join_id):
     user = session["user"]
 
     room = room_service.join_room(user.get("id"), join_id)
 
-    return redirect(f"http://localhost:5173/join/{room.id}")
+    return redirect(f"http://localhost:5173/play/{room.id}")
 
 
 @socketio.on("connect")
@@ -58,8 +58,7 @@ def connected():
 def on_join(data):
     room = data["room"]
     session["room"] = room
-    room = join_room(room)
-    print(room)
+    join_room(room)
     socketio.emit("room_joined", "player has joined", to=room)
 
 
