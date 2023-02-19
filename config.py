@@ -57,7 +57,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
 )
 
 
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False>
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode=async_mode)
 oauth = OAuth(app)

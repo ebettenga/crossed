@@ -5,45 +5,17 @@ from marshmallow import ValidationError
 from config import socketio
 from domains.authentication.service import login_required
 from domains.authentication.views import *
-from domains.room.model import CreateRoomSchema, RoomSchema
+from domains.room.model import JoinRoomSchema, Room, RoomSchema
 from domains.room.service import RoomService
 
 from domains.user.model import *
 
 
 from config import socketio
-from flask_socketio import emit, join_room, send
+from flask_socketio import emit, join_room
 
 
 room_service = RoomService()
-
-
-@app.route("/api/v1/rooms", methods=["POST"])
-@login_required
-def create_room():
-    user = session["user"]
-    room_payload = request.get_json()
-    inbound_schema = CreateRoomSchema()
-
-    try:
-        data = inbound_schema.load(room_payload)
-    except ValidationError as err:
-        return err.messages, 422
-
-    room = room_service.create_room(user.get("id"), data.get("crossword_id"))
-
-    outbound_schema = RoomSchema()
-    return outbound_schema.dump(room)
-
-
-@app.route("/join_room/<int:join_id>", methods=["GET"])
-@login_required
-def join_user_to_room(join_id):
-    user = session["user"]
-
-    room = room_service.join_room(user.get("id"), join_id)
-
-    return redirect(f"http://localhost:5173/play/{room.id}")
 
 
 @socketio.on("connect")
@@ -56,10 +28,20 @@ def connected():
 
 @socketio.on("join")
 def on_join(data):
-    room = data["room"]
-    session["room"] = room
+    inbound_schema = JoinRoomSchema()
+
+    try:
+        data = inbound_schema.load(data)
+    except ValidationError as e:
+        return e.messages, 422
+
+    room: Room = room_service.join_room(data["user_id"], data["difficulty"])
+    session["room"] = room.id
     join_room(room)
-    socketio.emit("room_joined", "player has joined", to=room)
+
+    outbound_schema = RoomSchema()
+
+    emit("room_joined", outbound_schema.dump(room), to=room)
 
 
 @socketio.on("message")

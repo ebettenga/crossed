@@ -1,5 +1,6 @@
 import datetime
 from marshmallow import Schema, fields
+from marshmallow.validate import OneOf
 from sqlalchemy import ARRAY, Column, DateTime, ForeignKey, Identity, Integer, String
 from sqlalchemy.orm import relationship
 from config import db
@@ -22,26 +23,28 @@ class Room(db.Model):
         ForeignKey("crosswords.id", name="room_crossword_id_fkey"),
         nullable=False,
     )
-    created_at = Column(DateTime, default=lambda: datetime.datetime.utcnow())
     found_letters = Column(ARRAY(String))
     player_1_score = Column(Integer, default=0)
     player_2_score = Column(Integer, default=0)
-    join_id = Column(Integer, Identity())
+    created_at = Column(DateTime, default=lambda: datetime.datetime.utcnow())
+    difficulty = Column(String)
 
     crossword = relationship("Crossword")
     player_1 = relationship("User", foreign_keys=[player_1_id])
     player_2 = relationship("User", foreign_keys=[player_2_id])
 
-    def __init__(self, player_1_id, crossword_id):
+    def __init__(self, player_1_id, crossword_id, difficulty):
         self.player_1_id = player_1_id
         self.crossword_id = crossword_id
+        self.difficulty = difficulty
 
     def __repr__(self):
         return "<id {}>".format(self.id)
 
 
-class CreateRoomSchema(Schema):
-    crossword_id = fields.Integer(required=True)
+class JoinRoomSchema(Schema):
+    user_id = fields.Integer(required=True)
+    difficulty = fields.String(validate=OneOf(["easy", "medium", "hard"]))
 
 
 class RoomSchema(Schema):
@@ -52,7 +55,7 @@ class RoomSchema(Schema):
     created_at = fields.DateTime()
     player_1_score = fields.Integer()
     player_2_score = fields.Integer()
-    join_link = fields.Method("get_join_link")
+    difficulty = fields.String()
 
     def get_join_link(self, room):
         return f"http://localhost:5000/join_room/{room.join_id}"

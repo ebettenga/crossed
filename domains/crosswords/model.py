@@ -23,6 +23,7 @@ class Crossword(db.Model):
     row_size = db.Column(Integer)
     jnote = db.Column(String)
     notepad = db.Column(String)
+    title = db.Column(String)
 
     def __init__(
         self,
@@ -39,6 +40,7 @@ class Crossword(db.Model):
         row_size,
         jnotes,
         notepad,
+        title,
         *args,
         **kwargs,
     ):
@@ -55,6 +57,7 @@ class Crossword(db.Model):
         self.row_size = row_size
         self.jnote = jnotes
         self.notepad = notepad
+        self.title = title
 
         if kwargs:
             for key, item in kwargs.items():

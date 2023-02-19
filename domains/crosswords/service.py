@@ -5,6 +5,7 @@ import re
 from config import db
 from flask_sqlalchemy.query import Query
 from domains.crosswords.model import Crossword
+from sqlalchemy.sql.expression import func
 
 
 class CrossWordService:
@@ -56,6 +57,21 @@ class CrossWordService:
 
     def create_found_letters_template(self, crossword_id):
         crossword: Crossword = Crossword.query.get(crossword_id)
-        new_grid = []
 
         return [re.sub("[A-Za-z]", "*", v) for v in crossword.grid]
+
+    def get_crossword_by_difficulty(self, difficulty: str) -> Crossword:
+        if difficulty.lower() == "easy":
+            days = ["Monday", "Tuesday"]
+        elif difficulty.lower() == "medium":
+            days = ["Wednesday", "Thursday"]
+        elif difficulty.lower() == "hard":
+            days = ["Friday", "Saturday"]
+        else:
+            raise ValueError("not a correct difficulty")
+
+        return (
+            Crossword.query.filter(Crossword.dow.in_(days))
+            .order_by(func.random())
+            .first()
+        )
