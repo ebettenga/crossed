@@ -56,6 +56,3 @@ class RoomSchema(Schema):
     player_1_score = fields.Integer()
     player_2_score = fields.Integer()
     difficulty = fields.String()
-
-    def get_join_link(self, room):
-        return f"http://localhost:5000/join_room/{room.join_id}"
