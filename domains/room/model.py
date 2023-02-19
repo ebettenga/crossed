@@ -47,11 +47,25 @@ class JoinRoomSchema(Schema):
     difficulty = fields.String(validate=OneOf(["easy", "medium", "hard"]))
 
 
+class SubmitSquareSchema(Schema):
+    x = fields.Integer()
+    y = fields.Integer()
+    guess = fields.String()
+
+
 class RoomSchema(Schema):
     id = fields.Integer()
+    found_letters = fields.List(fields.String())
     player_1 = fields.Nested(UserSchema)
     player_2 = fields.Nested(UserSchema)
-    crossword = fields.Nested(CrosswordSchema)
+    crossword = fields.Nested(
+        CrosswordSchema(
+            exclude=[
+                "answers",
+                "grid",
+            ]
+        )
+    )
     created_at = fields.DateTime()
     player_1_score = fields.Integer()
     player_2_score = fields.Integer()

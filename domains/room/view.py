@@ -5,7 +5,7 @@ from marshmallow import ValidationError
 from config import socketio
 from domains.authentication.service import login_required
 from domains.authentication.views import *
-from domains.room.model import JoinRoomSchema, Room, RoomSchema
+from domains.room.model import JoinRoomSchema, Room, RoomSchema, SubmitSquareSchema
 from domains.room.service import RoomService
 
 from domains.user.model import *
@@ -16,6 +16,20 @@ from flask_socketio import emit, join_room
 
 
 room_service = RoomService()
+
+
+@app.route("/test", methods=["POST"])
+def test():
+    data = request.get_json()
+    coordinates = {"x": data["x"], "y": data["y"]}
+
+    room = room_service.guess(
+        data["room_id"], coordinates, data["guess"], data["user_id"]
+    )
+
+    outbound_schema = RoomSchema()
+
+    return outbound_schema.dump(room)
 
 
 @socketio.on("connect")
@@ -33,7 +47,7 @@ def on_join(data):
     try:
         data = inbound_schema.load(data)
     except ValidationError as e:
-        return e.messages, 422
+        emit("error", e.messages, to=request.sid)
 
     room: Room = room_service.join_room(data["user_id"], data["difficulty"])
     session["room"] = room.id
@@ -46,11 +60,19 @@ def on_join(data):
 
 @socketio.on("message")
 def handle_message(data):
-    print("got message", data)
-    room = data["room"]
-    print("room number", room)
-    """event listener when client types a message"""
-    emit("message", {"message": data["message"]}, to=session.get("room"))
+    room_id = session.get("room")
+    inbound_schema = SubmitSquareSchema()
+
+    try:
+        data = inbound_schema.load(data)
+    except ValidationError as e:
+        emit("error", e.messages, to=request.sid)
+
+    coordinates = {"x": data["x"], "y": data["y"]}
+
+    room_service.guess(room_id, coordinates, data["guess"], data["user_id"])
+
+    emit("message", {"message": data["message"]}, to=room_id)
 
 
 @socketio.on("game_state")

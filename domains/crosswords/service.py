@@ -7,6 +7,8 @@ from flask_sqlalchemy.query import Query
 from domains.crosswords.model import Crossword
 from sqlalchemy.sql.expression import func
 
+from domains.room.model import Room
+
 
 class CrossWordService:
     def __init__(self):
@@ -75,3 +77,20 @@ class CrossWordService:
             .order_by(func.random())
             .first()
         )
+
+    def create_answer_board(self, crossword: Crossword):
+        answer_board = []
+        for r in range(crossword.col_size):
+            row_start = r * crossword.row_size
+            answer_board.append(
+                crossword.grid[row_start : row_start + crossword.row_size]
+            )
+
+        return answer_board
+
+    def check_guess(self, room: Room, coordinates: dict, guess: str):
+        crossword = room.crossword
+
+        board = self.create_answer_board(crossword)
+
+        return board[coordinates["x"]][coordinates["y"]] == guess

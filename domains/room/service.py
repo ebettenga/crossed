@@ -1,7 +1,7 @@
 from config import db
 from domains.crosswords.model import Crossword
 from domains.crosswords.service import CrossWordService
-
+from sqlalchemy.orm.attributes import flag_modified
 
 from domains.room.model import Room
 
@@ -43,3 +43,46 @@ class RoomService:
             .order_by(Room.created_at)
             .first()
         )
+
+    def guess(self, room_id: int, coordinates: dict, guess: str, user_id):
+        room: Room = Room.query.get(room_id)
+        is_correct = crossword_service.check_guess(room, coordinates, guess)
+
+        if is_correct:
+            self.add_points(room, user_id)
+            self.update_found_board(room, coordinates, guess)
+            return room
+        else:
+            self.remove_points(room, user_id)
+            return room
+
+    def update_found_board(self, room: Room, coordinates, guess):
+        if coordinates["x"] == 0:
+            x_number = 0
+        else:
+            x_number = coordinates["x"] * room.crossword.row_size
+
+        space = x_number + coordinates["y"]
+        room.found_letters[space] = guess
+        flag_modified(room, "found_letters")
+        db.session.merge(room)
+        db.session.flush()
+        db.session.commit()
+
+    def add_points(self, room: Room, user_id):
+        if room.player_1_id == user_id:
+            room.player_1_score += 3
+        else:
+            room.player_2_score += 3
+
+    def remove_points(self, room: Room, user_id):
+        if room.player_1_id == user_id:
+            room.player_1_score -= 1
+        else:
+            room.player_2_score -= 1
+        # TODO: why do we need these flag_modified lines? it won't update consistently without
+        flag_modified(room, "player_1_score")
+        flag_modified(room, "player_2_score")
+        db.session.merge(room)
+        db.session.flush()
+        db.session.commit()
