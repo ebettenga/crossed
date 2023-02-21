@@ -2,7 +2,7 @@ from flask import request
 from marshmallow import ValidationError
 
 from config import app
-from domains.authentication.service import login_required
+from domains.authentication.guards import authorization_guard
 from domains.crosswords.model import CrosswordQuerySchema, CrosswordSchema
 from domains.crosswords.service import CrossWordService
 from domains.pagination.model import PaginationSchema
@@ -11,7 +11,7 @@ crossword_service = CrossWordService()
 
 
 @app.route("/api/v1/crosswords")
-@login_required
+@authorization_guard
 def get_crosswords():
     try:
         query_schema = CrosswordQuerySchema()

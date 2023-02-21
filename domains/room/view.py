@@ -1,10 +1,7 @@
-import json
 from flask import request, session
 
 from marshmallow import ValidationError
-from config import socketio
-from domains.authentication.service import login_required
-from domains.authentication.views import *
+from config import socketio, app
 from domains.room.model import JoinRoomSchema, Room, RoomSchema, SubmitSquareSchema
 from domains.room.service import RoomService
 
@@ -70,9 +67,10 @@ def handle_message(data):
 
     coordinates = {"x": data["x"], "y": data["y"]}
 
-    room_service.guess(room_id, coordinates, data["guess"], data["user_id"])
+    room = room_service.guess(room_id, coordinates, data["guess"], data["user_id"])
 
-    emit("message", {"message": data["message"]}, to=room_id)
+    outbound_schema = RoomSchema()
+    emit("message", {"message": outbound_schema.dump(room)}, to=room_id)
 
 
 @socketio.on("game_state")
