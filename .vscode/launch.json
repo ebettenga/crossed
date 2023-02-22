@@ -13,6 +13,7 @@
                 "FLASK_APP": "app.py",
                 "FLASK_DEBUG": "1"
             },
+            "port": 0,
             "args": [
                 "run",
                 "--no-debugger",

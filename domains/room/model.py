@@ -50,6 +50,8 @@ class JoinRoomSchema(Schema):
 class SubmitSquareSchema(Schema):
     x = fields.Integer()
     y = fields.Integer()
+    user_id = fields.Integer()
+    room_id = fields.Integer()
     guess = fields.String()
 
 

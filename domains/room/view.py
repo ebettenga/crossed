@@ -47,17 +47,15 @@ def on_join(data):
         emit("error", e.messages, to=request.sid)
 
     room: Room = room_service.join_room(data["user_id"], data["difficulty"])
-    session["room"] = room.id
-    join_room(room)
+    join_room(room.id, request.sid)
 
     outbound_schema = RoomSchema()
 
-    emit("room_joined", outbound_schema.dump(room), to=room)
+    emit("room_joined", outbound_schema.dump(room), to=room.id)
 
 
 @socketio.on("message")
 def handle_message(data):
-    room_id = session.get("room")
     inbound_schema = SubmitSquareSchema()
 
     try:
@@ -67,16 +65,12 @@ def handle_message(data):
 
     coordinates = {"x": data["x"], "y": data["y"]}
 
-    room = room_service.guess(room_id, coordinates, data["guess"], data["user_id"])
+    room = room_service.guess(
+        data["room_id"], coordinates, data["guess"], data["user_id"]
+    )
 
     outbound_schema = RoomSchema()
-    emit("message", {"message": outbound_schema.dump(room)}, to=room_id)
-
-
-@socketio.on("game_state")
-def handle_message(data):
-    print(session)
-    emit("state", {"state": {"test_object": data}}, to=session.get("room"))
+    emit("message", {"message": outbound_schema.dump(room)}, to=room.id)
 
 
 @socketio.on("disconnect")

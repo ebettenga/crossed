@@ -21,6 +21,10 @@ class RoomService:
 
     def join_existing_room(self, room, user_id):
         room.player_2_id = user_id
+        flag_modified(room, "player_2_id")
+        db.session.merge(room)
+        db.session.flush()
+        db.session.commit()
         return room
 
     def create_room(self, user_id, difficulty):
