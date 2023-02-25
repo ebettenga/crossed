@@ -74,6 +74,10 @@ class CrossWordService:
 
         return (
             Crossword.query.filter(Crossword.dow.in_(days))
+            .filter(
+                Crossword.date
+                > datetime.datetime.now() - datetime.timedelta(days=10 * 365)
+            )
             .order_by(func.random())
             .first()
         )
@@ -93,4 +97,4 @@ class CrossWordService:
 
         board = self.create_answer_board(crossword)
 
-        return board[coordinates["x"]][coordinates["y"]] == guess
+        return board[coordinates["x"]][coordinates["y"]] == guess.upper()
