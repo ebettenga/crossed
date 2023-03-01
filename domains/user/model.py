@@ -1,5 +1,3 @@
-
-
 from datetime import datetime
 
 from marshmallow import Schema, fields
@@ -16,7 +14,7 @@ class UserQueryClient(Query):
 
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     query_class = UserQueryClient
 
     id = db.Column(db.Integer, primary_key=True)
@@ -33,7 +31,7 @@ class User(db.Model):
         self.profile_image = profile_image
 
     def __repr__(self):
-        return '<id {}>'.format(self.id)
+        return "<id {}>".format(self.id)
 
 
 class UserSchema(Schema):
