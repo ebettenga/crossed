@@ -16,10 +16,10 @@ def get_user():
 
     if not user:
         user = user_service.create_user(
-            user_data["name"],
-            user_data["family_name"],
-            user_data["email"],
-            user_data["picture"],
+            user_data.get("name", "unknown"),
+            user_data.get("family_name", ""),
+            user_data.get("email", "unknown"),
+            user_data.get("picture", None),
         )
 
     outbound_mapper = UserSchema()

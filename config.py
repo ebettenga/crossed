@@ -18,7 +18,7 @@ if ENV_FILE:
 
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=["http://localhost:5173", "https://ebettenga.jprq.live"])
 app.secret_key = os.getenv("APP_SECRET_KEY")
 ## container
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(

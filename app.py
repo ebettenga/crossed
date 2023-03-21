@@ -11,4 +11,5 @@ from config import socketio
 
 
 if __name__ == "__main__":
+    print("Starting Server")
     socketio.run(app)

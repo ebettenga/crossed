@@ -1,5 +1,4 @@
 from config import db
-from domains.crosswords.model import Crossword
 from domains.crosswords.service import CrossWordService
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -9,6 +8,9 @@ crossword_service = CrossWordService()
 
 
 class RoomService:
+    def get_room_by_id(self, room_id: int):
+        return Room.query.get(room_id)
+
     def join_room(self, user_id, difficulty):
         room = self.find_empty_room_by_difficulty(difficulty)
 

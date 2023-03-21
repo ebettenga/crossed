@@ -2,7 +2,12 @@ from flask import request, session
 
 from marshmallow import ValidationError
 from config import socketio, app
-from domains.room.model import JoinRoomSchema, Room, RoomSchema, SubmitSquareSchema
+from domains.room.model import (
+    JoinRoomSchema,
+    Room,
+    RoomSchema,
+    SubmitSquareSchema,
+)
 from domains.room.service import RoomService
 
 from domains.user.model import *
@@ -15,15 +20,9 @@ from flask_socketio import emit, join_room
 room_service = RoomService()
 
 
-@app.route("/test", methods=["POST"])
-def test():
-    data = request.get_json()
-    coordinates = {"x": data["x"], "y": data["y"]}
-
-    room = room_service.guess(
-        data["room_id"], coordinates, data["guess"], data["user_id"]
-    )
-
+@app.route("/api/v1/room/<int:room_id>", methods=["GET"])
+def get_room(room_id):
+    room: Room = room_service.get_room_by_id(room_id)
     outbound_schema = RoomSchema()
 
     return outbound_schema.dump(room)
@@ -51,6 +50,15 @@ def on_join(data):
 
     outbound_schema = RoomSchema()
 
+    emit("room_joined", outbound_schema.dump(room), to=room.id)
+
+
+@socketio.on("load_room")
+def on_load(room_id):
+    room: Room = room_service.get_room_by_id(room_id)
+    join_room(room.id, request.sid)
+
+    outbound_schema = RoomSchema()
     emit("room_joined", outbound_schema.dump(room), to=room.id)
 
 
