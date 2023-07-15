@@ -11,7 +11,6 @@ from domains.health.healthceck import *
 from config import socketio
 
 
-if __name__ == "__main__":
-    print("Starting Server")
-    print(f"PORT: {os.getenv('PORT', 5000)}")
-    socketio.run(app, port=os.getenv("PORT", 5000))
+print("Starting Server")
+print(f"PORT: {os.getenv('PORT', 5000)}")
+socketio.run(app, port=os.getenv("PORT", 5000))
