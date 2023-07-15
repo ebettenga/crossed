@@ -23,7 +23,7 @@ services:
     volumes:
       - ./:/app
     environment:
-      SQLALCHEMY_DATABASE_URI: "postgresql://postgres:secret@crossed_db:5432/crossed_db"
+      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI:-"postgresql://postgres:secret@crossed_db:5432/crossed_db"}
     build:
       context: .
       dockerfile: docker/server.Dockerfile

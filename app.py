@@ -1,3 +1,4 @@
+import os
 from config import socketio, app
 from domains.room.view import *
 from domains.crosswords.view import *
@@ -12,4 +13,5 @@ from config import socketio
 
 if __name__ == "__main__":
     print("Starting Server")
-    socketio.run(app)
+    print(f"PORT: {os.getenv('PORT', 5000)}")
+    socketio.run(app, port=os.getenv("PORT", 5000))
