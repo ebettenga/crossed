@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/crossed_data
       #        point this towards the file you would like to load up
-      - ./build/db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql
+      # - ./build/db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql
       - ./etc/psqlrc:/var/lib/postgresql/.psqlrc
     restart: always
     user: postgres
@@ -33,6 +33,7 @@ services:
       - crossed
     depends_on:
       - postgres
+    command: "python app.py"
 networks:
   crossed:
 volumes:
