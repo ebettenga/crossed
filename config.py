@@ -44,7 +44,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 oauth = OAuth(app)
 
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 migrate = Migrate(app, db, compare_type=True)
 
 auth0_service.initialize(auth0_domain, auth0_audience)
