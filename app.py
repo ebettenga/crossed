@@ -13,4 +13,6 @@ from config import socketio
 
 print("Starting Server")
 print(f"PORT: {os.getenv('PORT', 5000)}")
-socketio.run(app, port=os.getenv("PORT", 5000), allow_unsafe_werkzeug=True)
+socketio.run(
+    app, host="0.0.0.0", port=os.getenv("PORT", 5000), allow_unsafe_werkzeug=True
+)
