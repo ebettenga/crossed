@@ -7,6 +7,8 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
 from flask_cors import CORS
+import eventlet
+
 
 from domains.authentication.service import auth0_service
 
@@ -39,7 +41,9 @@ auth0_domain = os.environ.get("AUTH0_DOMAIN")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 oauth = OAuth(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+
+eventlet.monkey_patch()
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 migrate = Migrate(app, db, compare_type=True)
 
 auth0_service.initialize(auth0_domain, auth0_audience)
