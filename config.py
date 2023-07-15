@@ -7,7 +7,9 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
 from flask_cors import CORS
-import eventlet
+from gevent import monkey
+
+monkey.patch_all()
 
 
 from domains.authentication.service import auth0_service
@@ -42,7 +44,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 oauth = OAuth(app)
 
-eventlet.monkey_patch()
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 migrate = Migrate(app, db, compare_type=True)
 
