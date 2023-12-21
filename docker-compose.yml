@@ -5,7 +5,7 @@ services:
     networks:
       - crossed
     ports:
-      - "5432:5432"
+      - "5430:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
@@ -23,10 +23,10 @@ services:
     volumes:
       - ./:/app
     environment:
-      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI:-"postgresql://postgres:secret@crossed_db:5432/crossed_db"}
+      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI:-postgresql://postgres:secret@crossed_db:5432/crossed_db}
     build:
       context: .
-      dockerfile: docker/server.Dockerfile
+      dockerfile: docker/Dockerfile
     ports:
       - "5000:5000"
     networks:
