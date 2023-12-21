@@ -9,8 +9,8 @@ deploy-local: create
 
 create:
 	docker-compose up -d
-	docker-compose exec -it crossed_server flask db upgrade
-	docker-compose exec -it crossed_server python3 seed.py
+	docker-compose exec -it server flask db upgrade
+	docker-compose exec -it server python3 seed.py
 
 down:
 	docker-compose down
