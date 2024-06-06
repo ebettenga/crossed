@@ -33,7 +33,7 @@ services:
       - crossed
     depends_on:
       - postgres
-    command: "gunicorn app:app"
+    # command: "gunicorn app:app"
 networks:
   crossed:
 volumes:

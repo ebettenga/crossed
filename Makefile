@@ -1,5 +1,9 @@
-serve:
-	python3 app.py
+serve: migrate
+	gunicorn app:app
+
+migrate:
+	flask db upgrade
+	python3 seed.py
 
 up:
 	docker-compose up -d

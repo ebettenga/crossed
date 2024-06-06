@@ -8,6 +8,7 @@ from domains.crosswords.model import Crossword
 from sqlalchemy.sql.expression import func
 
 from domains.room.model import Room
+from sqlalchemy import inspect
 
 
 class CrossWordService:
@@ -30,6 +31,13 @@ class CrossWordService:
         return crossword_pagination
 
     def load_crosswords(self):
+        inspector = inspect(db.engine)
+        if 'crosswords' not in inspector.get_table_names():
+            print("The table 'crosswords' does not exist")
+            return
+        if Crossword.query.count() > 0:
+            print("Crosswords already loaded")
+            return
         for root, dirs, files in os.walk("./crosswords"):
             for file in files:
                 with open(root + "/" + file) as f:

@@ -7,18 +7,10 @@ from domains.user.model import *
 from domains.crosswords.model import *
 from domains.room.model import *
 from domains.health.healthceck import *
-
-from config import socketio
-
+from migrations.run_migrations import run_migrations
 
 print("Starting Server")
 print(f"PORT: {os.getenv('PORT', 5000)}")
-# Run alembic migrations
-from alembic.config import Config
-from alembic import command
-
-alembic_cfg = Config("alembic.ini")
-command.upgrade(alembic_cfg, "head")
 socketio.run(
     app, host="0.0.0.0", port=os.getenv("PORT", 5000), allow_unsafe_werkzeug=True
 )
