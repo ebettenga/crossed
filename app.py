@@ -13,6 +13,12 @@ from config import socketio
 
 print("Starting Server")
 print(f"PORT: {os.getenv('PORT', 5000)}")
+# Run alembic migrations
+from alembic.config import Config
+from alembic import command
+
+alembic_cfg = Config("alembic.ini")
+command.upgrade(alembic_cfg, "head")
 socketio.run(
     app, host="0.0.0.0", port=os.getenv("PORT", 5000), allow_unsafe_werkzeug=True
 )
